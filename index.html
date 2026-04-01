@@ -91,7 +91,29 @@
     ctx.fill();
   }
 }
+let painting = false;
 
+function scratch(x, y) {
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.arc(x, y, 38, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+canvas.addEventListener('mousedown', e => { painting = true; scratch(e.clientX, e.clientY); });
+canvas.addEventListener('mousemove', e => { if (painting) scratch(e.clientX, e.clientY); });
+canvas.addEventListener('mouseup', () => painting = false);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); painting = true;
+  const t = e.touches[0]; scratch(t.clientX, t.clientY);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0]; scratch(t.clientX, t.clientY);
+}, { passive: false });
+canvas.addEventListener('touchend', () => painting = false);
     window.addEventListener('resize', resize);
     resize();
   </script>

@@ -141,7 +141,6 @@
     }
 
     function drawCover() {
-      // Sample exact bg color from kitty image
       const offscreen = document.createElement('canvas');
       offscreen.width = kittyImg.naturalWidth || 10;
       offscreen.height = kittyImg.naturalHeight || 10;
@@ -182,7 +181,7 @@
     function scratch(x, y) {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.arc(x, y, 42, 0, Math.PI * 2);
+      ctx.arc(x, y, 80, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
     }

@@ -11,7 +11,29 @@
     <h1>Your title here</h1>
     <p>Your message here</p>
   </div>
+  
+<canvas id="c"></canvas>
 
+<script>
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    drawCover();
+  }
+
+  function drawCover() {
+    ctx.fillStyle = '#0f0a1a';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+</script>
 </body>
 </html>
 

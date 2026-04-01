@@ -5,41 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>For you</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0f0a1a;
+      background: #ffd565;
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, serif;
+      overflow: hidden;
+      user-select: none;
     }
 
-    #message {
+    #content {
       position: absolute;
       inset: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 48px;
       padding: 40px;
-      text-align: center;
     }
 
-    #message h1 {
-      color: #e8c99a;
-      font-size: 2rem;
+    #text {
+      max-width: 320px;
+      flex-shrink: 0;
+    }
+
+    #text h1 {
+      font-size: clamp(1.3rem, 3vw, 1.9rem);
       font-weight: normal;
       font-style: italic;
+      color: #3d1f00;
       line-height: 1.4;
       margin-bottom: 16px;
     }
 
-    #message p {
-      color: #c8a87a;
-      font-size: 1rem;
+    #text p {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: clamp(0.85rem, 2vw, 1rem);
       line-height: 1.9;
+      color: #5c3300;
+    }
+
+    #content img {
+      width: min(320px, 42vw);
+      height: auto;
+      flex-shrink: 0;
+      border-radius: 12px;
     }
 
     canvas {
@@ -50,21 +64,56 @@
       touch-action: none;
       cursor: crosshair;
     }
+
+    #hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 0.75rem;
+      color: rgba(80, 40, 0, 0.45);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      pointer-events: none;
+      transition: opacity 0.4s;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      #content {
+        flex-direction: column-reverse;
+        gap: 20px;
+        justify-content: center;
+      }
+      #content img { width: min(240px, 65vw); }
+      #text { text-align: center; }
+    }
   </style>
 </head>
 <body>
 
-  <div id="message">
-    <h1>Your title here</h1>
-    <p>Your message here</p>
+  <div id="content">
+    <div id="text">
+      <h1>Hi sillyyyy</h1>
+      <p>
+        Kitty saw you working hard!!!<br/><br/>
+        so kitty gave you a flower<br/>
+        but its his flower so he's a lil grumpy giving it away<br/><br/>
+        love you soooo muchhh!! drink sum water n rest well!
+      </p>
+    </div>
+    <img src="kitty.png" alt="kittyyyyy"/>
   </div>
 
   <canvas id="c"></canvas>
+  <div id="hint">scratch to reveal</div>
 
   <script>
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
-    let W, H;
+    const hint = document.getElementById('hint');
+    let W, H, painting = false;
 
     function resize() {
       W = canvas.width = window.innerWidth;
@@ -72,48 +121,58 @@
       drawCover();
     }
 
-   function drawCover() {
-  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.8);
-  grad.addColorStop(0, '#1a0f2e');
-  grad.addColorStop(0.5, '#0d0818');
-  grad.addColorStop(1, '#050310');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
+    function drawCover() {
+      ctx.fillStyle = '#ffd565';
+      ctx.fillRect(0, 0, W, H);
 
-  for (let i = 0; i < 180; i++) {
-    const x = Math.random() * W;
-    const y = Math.random() * H;
-    const r = Math.random() * 1.2 + 0.3;
-    const alpha = Math.random() * 0.6 + 0.2;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,240,200,${alpha})`;
-    ctx.fill();
-  }
-}
-let painting = false;
+      const colors = [
+        'rgba(255, 255, 255, 0.75)',
+        'rgba(255, 255, 255, 0.45)',
+        'rgba(255, 248, 225, 0.8)',
+        'rgba(255, 252, 235, 0.55)',
+      ];
 
-function scratch(x, y) {
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
-  ctx.arc(x, y, 38, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalCompositeOperation = 'source-over';
-}
+      const spacing = 44;
+      const cols = Math.ceil(W / spacing) + 1;
+      const rows = Math.ceil(H / spacing) + 1;
 
-canvas.addEventListener('mousedown', e => { painting = true; scratch(e.clientX, e.clientY); });
-canvas.addEventListener('mousemove', e => { if (painting) scratch(e.clientX, e.clientY); });
-canvas.addEventListener('mouseup', () => painting = false);
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const x = col * spacing + (row % 2 === 0 ? 0 : spacing / 2);
+          const y = row * spacing;
+          const r = 9 + Math.sin(col * 2.3 + row * 1.7) * 3;
+          const color = colors[(col + row * 2) % colors.length];
 
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault(); painting = true;
-  const t = e.touches[0]; scratch(t.clientX, t.clientY);
-}, { passive: false });
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const t = e.touches[0]; scratch(t.clientX, t.clientY);
-}, { passive: false });
-canvas.addEventListener('touchend', () => painting = false);
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        }
+      }
+    }
+
+    function scratch(x, y) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 42, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    canvas.addEventListener('mousedown', e => { painting = true; hint.style.opacity = '0'; scratch(e.clientX, e.clientY); });
+    canvas.addEventListener('mousemove', e => { if (painting) scratch(e.clientX, e.clientY); });
+    canvas.addEventListener('mouseup', () => painting = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault(); painting = true; hint.style.opacity = '0';
+      const t = e.touches[0]; scratch(t.clientX, t.clientY);
+    }, { passive: false });
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const t = e.touches[0]; scratch(t.clientX, t.clientY);
+    }, { passive: false });
+    canvas.addEventListener('touchend', () => painting = false);
+
     window.addEventListener('resize', resize);
     resize();
   </script>

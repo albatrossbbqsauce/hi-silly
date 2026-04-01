@@ -72,9 +72,25 @@
       drawCover();
     }
 
-    function drawCover() {
-      ctx.fillStyle = '#0f0a1a';
-      ctx.fillRect(0, 0, W, H);
+   function drawCover() {
+  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.8);
+  grad.addColorStop(0, '#1a0f2e');
+  grad.addColorStop(0.5, '#0d0818');
+  grad.addColorStop(1, '#050310');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < 180; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const r = Math.random() * 1.2 + 0.3;
+    const alpha = Math.random() * 0.6 + 0.2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,240,200,${alpha})`;
+    ctx.fill();
+  }
+}
     }
 
     window.addEventListener('resize', resize);
